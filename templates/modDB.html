@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div class="queryForm">
+        <form method="POST" action="">
+            {{ form.hidden_tag() }}
+            <fieldset>
+                <legend>Add a Business</legend>
+                <div>
+                    {{ form.cmpName.label() }}
+                    {{ form.cmpName() }}
+                </div>
+                <div>
+                    {{ form.phoneNo.label() }}
+                    {{ form.phoneNo() }}
+                </div>
+                <div>
+                    {{ form.address.label() }}
+                    {{ form.address() }}
+                </div>
+            </fieldset>
+            <div>
+                {{ form.submit() }}
+            </div>
+        </form>
+    </div>
+</body>
+</html>
