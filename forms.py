@@ -4,16 +4,16 @@ from wtforms.validators import DataRequired, Length
 
 class centralForm(FlaskForm):
     # cmpname -> Company Name
-    cmpname = StringField('CmpName', validators=[DataRequired(), 
+    cmpName = StringField('Company Name', validators=[DataRequired(), 
                                                     Length(min=2, max=50)])
     submit = SubmitField ('Search') # param is just the display label
 
 class addCompanyForm(FlaskForm):
     # cmpName -> Company Name
-    cmpName = StringField('cmpName', validators=[DataRequired(), 
+    cmpName = StringField('Company Name', validators=[DataRequired(), 
                                                     Length(min=2, max=50)])
-    phoneNo = StringField('phoneNo', validators=[DataRequired(), 
+    phoneNo = StringField('Phone Number', validators=[DataRequired(), 
                                                     Length(min=1, max=15)])
-    address = StringField('address', validators=[DataRequired(), 
+    address = StringField('Address', validators=[DataRequired(), 
                                                     Length(min=1, max=100)])
-    submit = SubmitField ('Search') # param is just the display label
+    submit = SubmitField ('Add') # param is just the display label
