@@ -6,14 +6,14 @@
     <title>Document</title>
 </head>
 <body>
-    <div class="queryForm">
+    <div class="addCompanyForm">
         <form method="POST" action="">
             {{ form.hidden_tag() }}
             <fieldset>
-                <legend>Search up a Business!</legend>
+                <legend>Search up a business!</legend>
                 <div>
-                    {{ form.cmpname.label() }}
-                    {{ form.cmpname() }}
+                    {{ form.cmpName.label() }}
+                    {{ form.cmpName() }}
                 </div>
             </fieldset>
             <div>
