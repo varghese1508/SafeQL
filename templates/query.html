@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Query</title>
 </head>
 <body>
     <div class="addCompanyForm">
@@ -21,5 +21,23 @@
             </div>
         </form>
     </div>
+    {% if results %}
+    <div class="queryResult"">
+        <table>
+        <tr>
+            <th>Company Name</th>
+            <th>Phone Number</th>
+            <th>Address</th>
+        </tr>
+        <tr>
+            {% for result in results %}
+                <td>{{ result.cmpName }}</td>
+                <td>{{ result.phoneNo }}</td>
+                <td>{{ result.address }}</td>
+            {% endfor %}
+        </tr>
+    </table>
+    </div>
+    {% endif %}
 </body>
 </html>

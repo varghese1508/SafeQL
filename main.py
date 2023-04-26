@@ -13,12 +13,12 @@ app.app_context().push()    # required for db commands for flask in python
 
 class Company(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    cmpName = db.Column(db.String(50), unique=True, nullable=False)
+    cmpName = db.Column(db.String(50), nullable=False)
     phoneNo = db.Column(db.String(15), nullable=False)
     address = db.Column(db.String(100), nullable=False)
 
     def __repr__(self):
-        return f"Cmp('{self.cmpName}', '{self.phoneNo}', '{self.address}')"
+        return f"Company('{self.cmpName}', '{self.phoneNo}', '{self.address}')"
 
 # dummy Data: ;to remove
 data = [
@@ -26,16 +26,33 @@ data = [
 ]
 
 @app.route("/")
-def homeFun():
+def home():
     return render_template('home.html', data=data)
 
-@app.route("/query")
-def queryFun():
+@app.route("/query", methods=['GET', 'POST'])
+def query():
     form = centralForm()
+
+    if form.validate_on_submit():
+        results = Company.query.filter_by(cmpName=form.cmpName.data).all()
+
+        return render_template('query.html', form=form, results=results)
+
     return render_template('query.html', form=form)
 
-@app.route("/modDB")
-def modDBfun():
+@app.route("/protectedQuery", methods=['GET', 'POST'])
+def protectedQuery():
+    form = centralForm()
+
+    if form.validate_on_submit():
+        results = Company.query.filter_by(cmpName=form.cmpName.data).all()
+
+        return render_template('query.html', form=form, results=results)
+
+    return render_template('query.html', form=form)
+
+@app.route("/modDB", methods=['GET', 'POST'])
+def modDB():
     form = addCompanyForm()
 
     if form.validate_on_submit():
@@ -45,7 +62,7 @@ def modDBfun():
                             )
         db.session.add(newCmp)
         db.session.commit()
-        flash(f'{newCmp.cmpName} added to database')
+        # flash(f'{newCmp.cmpName} added to database') # functionality not added
 
         return redirect(url_for('modDB'))
 
