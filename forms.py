@@ -5,7 +5,7 @@ from wtforms.validators import DataRequired, Length
 class centralForm(FlaskForm):
     # cmpname -> Company Name
     cmpName = StringField('Company Name', validators=[DataRequired(), 
-                                                    Length(min=2, max=50)])
+                                                    Length(min=2, max=250)])
     submit = SubmitField ('Search') # param is just the display label
 
 class addCompanyForm(FlaskForm):

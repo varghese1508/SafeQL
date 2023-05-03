@@ -2,6 +2,7 @@ from flask import Flask, render_template, redirect, url_for, flash
 from forms import centralForm, addCompanyForm
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import text
+import logging
 
 app = Flask(__name__)
 
@@ -21,10 +22,27 @@ class Company(db.Model):
     def __repr__(self):
         return f"Company('{self.cmpName}', '{self.phoneNo}', '{self.address}')"
 
-# dummy Data: ;to remove
-data = [
-    {'key': 'result'}
-]
+
+def multQueries(sql):
+    result = ''  
+    queries = sql.split(';')
+
+    app.logger.debug('SQL Being run: ' + sql)
+
+    if queries[-1]=='':
+        queries = queries[:-1]  # get rid of the last empty element caused due to splitting
+
+    for query in queries:
+        query += ';' # add semicolon to each query
+        query = text(query)
+        if result=='':
+            result = db.session.execute(query)
+        else:
+            db.session.execute(query)
+    
+    db.session.commit()
+
+    return result
 
 @app.route("/")
 def home():
@@ -35,7 +53,8 @@ def query():
     form = centralForm()
 
     if form.validate_on_submit():
-        results = Company.query.filter_by(cmpName=form.cmpName.data).all()
+        sql = f"SELECT * FROM Company WHERE cmpName LIKE '{form.cmpName.data}'"
+        results = multQueries(sql) 
 
         return render_template('query.html', form=form, results=results)
 
@@ -72,15 +91,11 @@ def modDB():
 if __name__ == "__main__":
     app.run(debug=True)
 
-def multQueries(sql):  
-    queries = sql.split(';')
-
-    if queries[-1]=='':
-        queries = queries[:-1]  # get rid of the last empty element caused due to splitting
-
-    for query in queries:
-        query += ';' # add semicolon to each query
-        query = text(query)
-        db.session.execute(query)
-    
-    db.session.commit()
+'''
+sql =
+... SELECT * FROM Company;
+... INSERT INTO Company (cmpName, phoneNo, address)
+... VALUES ('TESETET', "232357232", "addddr");
+...
+TEST'; INSERT INTO Company (cmpName, phoneNo, address) VALUES ('erhbfher', "27777772", "addr"); --
+'''
