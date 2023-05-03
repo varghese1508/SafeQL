@@ -1,6 +1,7 @@
 from flask import Flask, render_template, redirect, url_for, flash
 from forms import centralForm, addCompanyForm
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import text
 
 app = Flask(__name__)
 
@@ -70,3 +71,16 @@ def modDB():
 
 if __name__ == "__main__":
     app.run(debug=True)
+
+def multQueries(sql):  
+    queries = sql.split(';')
+
+    if queries[-1]=='':
+        queries = queries[:-1]  # get rid of the last empty element caused due to splitting
+
+    for query in queries:
+        query += ';' # add semicolon to each query
+        query = text(query)
+        db.session.execute(query)
+    
+    db.session.commit()
