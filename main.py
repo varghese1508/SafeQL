@@ -2,6 +2,7 @@ from flask import Flask, render_template, redirect, url_for, flash
 from forms import centralForm, addCompanyForm
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import text
+from sqlalchemy.exc import SQLAlchemyError
 
 import keyword, random
 
@@ -37,9 +38,15 @@ def multQueries(sql):
         query += ';' # add semicolon to each query
         query = text(query)
         if result=='':
-            result = db.session.execute(query)
+            try:
+                result = db.session.execute(query)
+            except SQLAlchemyError as e:
+                return "ERROR"
         else:
-            db.session.execute(query)
+            try:
+                db.session.execute(query)
+            except SQLAlchemyError as e:
+                return "ERROR"
     
     db.session.commit()
 
@@ -80,6 +87,7 @@ def modifySQL(sql, newSQLKeywords):
 def checkStatus(sql):
     for word in sql.split(' '):
         word = word.strip("'")
+        word = word.strip(";")
         app.logger.debug('STATUS CHEK: ' + "-" + word + "-")
         if word.upper() in SQLKeywords:
             return "bad"
@@ -143,6 +151,8 @@ def protectedQuery():
         sql = cleanSQL(sql, newKeywords)
         app.logger.debug(sql)
         results = multQueries(sql)
+        if type(results)== str and results == "ERROR":
+            render_template('query.html', form=form, status="ERROR")
 
         return render_template('query.html', form=form, results=results, status=status)
 
@@ -157,7 +167,7 @@ def workingQuery():
 
         return render_template('query.html', form=form, results=results)
 
-    return render_template('query.html', form=form)
+    return render_template('queryNEW.html', form=form)
 
 @app.route("/modDB", methods=['GET', 'POST'])
 def modDB():
