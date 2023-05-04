@@ -145,8 +145,11 @@ def protectedQuery():
         status = checkStatus(sql)
         app.logger.debug(status)
 
-        if status=="bad":
-            return render_template('query.html', form=form, status=status)
+        if status==f"bad; injection prevented with key {key}":
+            res_inj = {'cmpName':'INJECTION DETECTED',
+                            'phoneNo':'INJECTION DETECTED',
+                            'address':'INJECTION DETECTED'}
+            return render_template('query.html', form=form, status=status, results = res_inj)
         # else status is "clear"
         sql = cleanSQL(sql, newKeywords)
         app.logger.debug(sql)
@@ -167,7 +170,7 @@ def workingQuery():
 
         return render_template('query.html', form=form, results=results)
 
-    return render_template('queryNEW.html', form=form)
+    return render_template('query.html', form=form)
 
 @app.route("/modDB", methods=['GET', 'POST'])
 def modDB():
