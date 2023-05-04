@@ -2,7 +2,8 @@ from flask import Flask, render_template, redirect, url_for, flash
 from forms import centralForm, addCompanyForm
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import text
-import logging
+
+import keyword, random
 
 app = Flask(__name__)
 
@@ -44,6 +45,65 @@ def multQueries(sql):
 
     return result
 
+SQLKeywords = ['SELECT', 'FROM', 'WHERE', 'HAVING', 'DROP', 'TABLES', 'INSERT',
+               '1=1', 'OR', 'DELETE', 'UPDATE', 'UNION', 'TRUNCATE']
+
+def isSQLKeyword(word):    
+    if keyword.iskeyword(word.upper()) or word.upper() in SQLKeywords:
+        return True
+    else:
+        return False
+
+def createKeyAppendedKeywords(key):
+    appendedKeys = []
+    for keyW in SQLKeywords:
+        appendedKeys.append(keyW + str(key))
+
+    return appendedKeys
+
+def modifySQL(sql, newSQLKeywords):
+    newSQL=""
+
+    for word in sql.split(' '):
+        if word.upper() in SQLKeywords:
+            newSQL = newSQL + newSQLKeywords[SQLKeywords.index(word)] + ' '
+        elif(word==';'):
+            newSQL = newSQL + ";"
+            break
+        else:
+            newSQL = newSQL + word + ' '
+    
+    app.logger.debug(f"modSQL: from --{sql}-- to --{newSQL}--")
+
+    return newSQL
+
+def checkStatus(sql):
+    for word in sql.split(' '):
+        word = word.strip("'")
+        app.logger.debug('STATUS CHEK: ' + "-" + word + "-")
+        if word.upper() in SQLKeywords:
+            return "bad"
+        
+    return "clear"
+
+def cleanSQL(sql, newSQLKeywords):
+    cleanSQL=""
+
+    for word in sql.split(' '):
+        if word.upper() in newSQLKeywords:
+            cleanSQL = cleanSQL + SQLKeywords[newSQLKeywords.index(word)] + ' '
+        elif(word==';'):
+            newSQL = newSQL + ";"
+            break
+        else:
+            cleanSQL = cleanSQL + word + ' '
+    
+    app.logger.debug(f"CLEANSQL: from --{sql}-- to --{cleanSQL}--")
+
+    return cleanSQL
+
+data = [] # remove at end.
+
 @app.route("/")
 def home():
     return render_template('home.html', data=data)
@@ -62,6 +122,34 @@ def query():
 
 @app.route("/protectedQuery", methods=['GET', 'POST'])
 def protectedQuery():
+
+    key = random.randint(100,999)
+    newKeywords = createKeyAppendedKeywords(key)
+
+    form = centralForm()
+
+    if form.validate_on_submit():
+        sql = "SELECT * FROM Company WHERE cmpName LIKE '{}'"
+        sql = modifySQL(sql, newKeywords)
+        app.logger.debug(sql)
+
+        sql = sql.format(form.cmpName.data)
+        status = checkStatus(sql)
+        app.logger.debug(status)
+
+        if status=="bad":
+            return render_template('query.html', form=form, status=status)
+        # else status is "clear"
+        sql = cleanSQL(sql, newKeywords)
+        app.logger.debug(sql)
+        results = multQueries(sql)
+
+        return render_template('query.html', form=form, results=results, status=status)
+
+    return render_template('query.html', form=form)
+
+@app.route("/workingQuery", methods=['GET', 'POST'])
+def workingQuery():
     form = centralForm()
 
     if form.validate_on_submit():
