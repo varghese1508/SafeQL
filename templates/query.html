@@ -1,5 +1,75 @@
 <!DOCTYPE html>
 <html lang="en">
+<style>
+    body {
+        background-color: rgb(251, 255, 0);
+    }
+    h1 {
+        text-align: center;
+        margin-top: 100px;
+        margin-bottom: 50px;
+        font-size: 80px;
+        width: 100%;
+        font-family: "Courier New", bold;
+    }
+
+    .searchCmp {
+        margin: auto;
+        text-align: center;
+        width: 50%;
+        margin-bottom: 15px;
+    }
+
+    .cmpLabel {
+        padding: 20px;
+        font-family: "Garamond", bold;
+        font-size: 20px;
+    }
+
+    .button {
+        background-color: rgb(219, 222, 216);
+        border: 1px solid black;
+        border-radius: 5px;
+        padding: 4px;
+        text-align: center;
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        font-family: "Garamond", bold;
+    }
+
+    .MEH{
+        margin-top:60px;
+    }
+
+    th, td {
+        border: 1px solid black;
+        padding: 8px;
+    }
+    table {
+        border-collapse: collapse;
+        border: 1px solid black;
+        text-align: center;
+	    margin: auto;
+    }
+    thead th {
+        width: 25%;
+    }
+    thead {
+        background-color: #333;
+        color: white;
+        font-size: 0.875rem;
+        text-transform: uppercase;
+        letter-spacing: 2%;
+    }
+    tbody tr:nth-child(odd) {
+        background-color: #fff;
+    }
+
+    tbody tr:nth-child(even) {
+        background-color: #eee;
+    }
+</style>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,33 +79,37 @@
     <div class="addCompanyForm">
         <form method="POST" action="">
             {{ form.hidden_tag() }}
-            <fieldset>
-                <legend>Search up a business!</legend>
-                <div>
+            
+            <div class="searchCmp">
+                <h1>The Yellow Pages.</h1>
+                <div class="cmpLabel">
                     {{ form.cmpName.label() }}
                     {{ form.cmpName() }}
                 </div>
-            </fieldset>
-            <div>
+            </div>
+        
+            <div class="button" style="font-family: Garamond;">
                 {{ form.submit() }}
             </div>
         </form>
     </div>
     {% if results %}
-    <div class="queryResult"">
-        <table>
+    <div>
+        <table class="MEH">
         <tr>
             <th>Company Name</th>
             <th>Phone Number</th>
             <th>Address</th>
         </tr>
+        {% for result in results %}
+        {% if result.cmpName %}
         <tr>
-            {% for result in results %}
                 <td>{{ result.cmpName }}</td>
                 <td>{{ result.phoneNo }}</td>
                 <td>{{ result.address }}</td>
-            {% endfor %}
         </tr>
+        {% endif %}
+        {% endfor %}
     </table>
     </div>
     {% endif %}
